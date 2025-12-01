@@ -1,0 +1,679 @@
+{# templates/analyzer/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {% if not hasData %}
+        <!-- Upload Section -->
+        <div class="max-w-4xl mx-auto animate-on-scroll">
+            <!-- Hero Section -->
+            <div class="text-center mb-12 lg:mb-16">
+                <div class="inline-block mb-6 p-3 rounded-2xl glass-effect">
+                    <div class="w-16 h-16 rounded-xl gradient-bg flex items-center justify-center mx-auto mb-4 animate-float">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="text-4xl lg:text-5xl font-bold mb-6">
+                    <span class="gradient-text">Analyze Your Instagram</span>
+                    <br>
+                    <span class="text-gray-700 dark:text-gray-300">Network in Seconds</span>
+                </h1>
+                <p class="text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
+                    Upload your Instagram data files to discover detailed insights about your followers and following relationships.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 mb-10">
+                    <div class="flex items-center space-x-2 px-4 py-2 rounded-full bg-green-50 dark:bg-green-900/20">
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span class="text-sm font-medium text-green-700 dark:text-green-300">100% Private</span>
+                    </div>
+                    <div class="flex items-center space-x-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/20">
+                        <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span class="text-sm font-medium text-blue-700 dark:text-blue-300">No Login Required</span>
+                    </div>
+                    <div class="flex items-center space-x-2 px-4 py-2 rounded-full bg-purple-50 dark:bg-purple-900/20">
+                        <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                        <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Free Forever</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- How It Works -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold text-center mb-8 text-gray-800 dark:text-white">
+                    <span class="highlight">How It Works</span>
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {% set steps = [
+                        {icon: '📥', title: 'Request Data', desc: 'Request your data from Instagram settings'},
+                        {icon: '📂', title: 'Upload Files', desc: 'Upload followers and following JSON files'},
+                        {icon: '📊', title: 'Get Insights', desc: 'Receive detailed analytics instantly'}
+                    ] %}
+                    {% for step in steps %}
+                    <div class="glass-effect rounded-2xl p-6 text-center transition-all hover:shadow-card-hover">
+                        <div class="text-3xl mb-4">{{ step.icon }}</div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-800 dark:text-white">{{ step.title }}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">{{ step.desc }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Upload Form -->
+            <div class="glass-effect rounded-3xl p-6 lg:p-8 shadow-lg">
+                <form method="post" enctype="multipart/form-data" class="space-y-8" id="upload-form">
+                    <!-- Followers Upload -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                                Followers Files
+                            </label>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                Upload <code>followers_1.json</code> and <code>followers_2.json</code> from your Instagram data.
+                            </p>
+                            <div class="upload-zone relative rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+                                <input id="followers-input" type="file" name="followers[]" multiple required accept=".json" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-8 h-8 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                        </svg>
+                                    </div>
+                                    <p class="font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        <span class="text-primary-500">Click to upload</span> or drag and drop
+                                    </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-500">
+                                        JSON files only (max 2 files)
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="followers-preview" class="mt-4 space-y-2 hidden">
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-800 flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-800 dark:text-gray-200" id="followers-filename"></p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400" id="followers-count"></p>
+                                        </div>
+                                    </div>
+                                    <button type="button" onclick="clearFollowers()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Following Upload -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                                Following File
+                            </label>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                Upload <code>following.json</code> from your Instagram data.
+                            </p>
+                            <div class="upload-zone relative rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+                                <input id="following-input" type="file" name="following" required accept=".json" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                        </svg>
+                                    </div>
+                                    <p class="font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        <span class="text-purple-500">Click to upload</span> or drag and drop
+                                    </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-500">
+                                        Single JSON file
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="following-preview" class="mt-4 space-y-2 hidden">
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-800 flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-800 dark:text-gray-200" id="following-filename"></p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">Following data file</p>
+                                        </div>
+                                    </div>
+                                    <button type="button" onclick="clearFollowing()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit" 
+                                id="analyze-btn"
+                                class="w-full py-4 px-6 bg-gradient-to-r from-primary-500 to-purple-600 text-white font-semibold rounded-2xl hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <div class="flex items-center justify-center space-x-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                <span class="text-lg">Analyze Network</span>
+                            </div>
+                        </button>
+                        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">
+                            Your data is processed locally and never stored on our servers.
+                        </p>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- FAQ Section -->
+            <div class="mt-16 glass-effect rounded-3xl p-8">
+                <h2 class="text-2xl font-bold text-center mb-8 text-gray-800 dark:text-white">
+                    <span class="highlight">Frequently Asked Questions</span>
+                </h2>
+                <div class="space-y-4 max-w-2xl mx-auto">
+                    {% set faqs = [
+                        {q: 'How do I get my Instagram data?', a: 'Go to Instagram Settings → Security → Download Data. Request your data and wait for the email.'},
+                        {q: 'Is this safe to use?', a: 'Yes! All processing happens in your browser. We never store or transmit your data.'},
+                        {q: 'What files do I need?', a: 'You need followers_1.json, followers_2.json, and following.json from your Instagram data.'}
+                    ] %}
+                    {% for faq in faqs %}
+                    <div class="rounded-xl p-5 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <div class="font-semibold text-gray-800 dark:text-white mb-2 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-primary-500 mr-3"></div>
+                            {{ faq.q }}
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm pl-5">{{ faq.a }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Upload Zone Interactions
+            const followersZone = document.querySelector('#followers-input').closest('.upload-zone');
+            const followingZone = document.querySelector('#following-input').closest('.upload-zone');
+            const followersInput = document.getElementById('followers-input');
+            const followingInput = document.getElementById('following-input');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            
+            // Handle drag and drop for followers
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
+                followersZone.addEventListener(event, preventDefaults, false);
+                followingZone.addEventListener(event, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(event => {
+                followersZone.addEventListener(event, () => followersZone.classList.add('dragover'), false);
+                followingZone.addEventListener(event, () => followingZone.classList.add('dragover'), false);
+            });
+            
+            ['dragleave', 'drop'].forEach(event => {
+                followersZone.addEventListener(event, () => followersZone.classList.remove('dragover'), false);
+                followingZone.addEventListener(event, () => followingZone.classList.remove('dragover'), false);
+            });
+            
+            followersZone.addEventListener('drop', handleDropFollowers, false);
+            followingZone.addEventListener('drop', handleDropFollowing, false);
+            
+            function handleDropFollowers(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                followersInput.files = files;
+                updatePreview(files, 'followers');
+            }
+            
+            function handleDropFollowing(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                followingInput.files = files;
+                updatePreview(files, 'following');
+            }
+            
+            followersInput.addEventListener('change', (e) => updatePreview(e.target.files, 'followers'));
+            followingInput.addEventListener('change', (e) => updatePreview(e.target.files, 'following'));
+            
+            function updatePreview(files, type) {
+                const previewDiv = document.getElementById(`${type}-preview`);
+                const filenameSpan = document.getElementById(`${type}-filename`);
+                
+                if (files.length > 0) {
+                    previewDiv.classList.remove('hidden');
+                    const fileNames = Array.from(files).map(f => f.name).join(', ');
+                    filenameSpan.textContent = fileNames;
+                    
+                    if (type === 'followers') {
+                        const countSpan = document.getElementById('followers-count');
+                        countSpan.textContent = `${files.length} file${files.length > 1 ? 's' : ''} selected`;
+                    }
+                    
+                    showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} file${files.length > 1 ? 's' : ''} uploaded successfully`, 'success');
+                }
+                
+                validateForm();
+            }
+            
+            function clearFollowers() {
+                followersInput.value = '';
+                document.getElementById('followers-preview').classList.add('hidden');
+                validateForm();
+            }
+            
+            function clearFollowing() {
+                followingInput.value = '';
+                document.getElementById('following-preview').classList.add('hidden');
+                validateForm();
+            }
+            
+            function validateForm() {
+                const hasFollowers = followersInput.files.length > 0;
+                const hasFollowing = followingInput.files.length > 0;
+                
+                analyzeBtn.disabled = !(hasFollowers && hasFollowing);
+            }
+            
+            // Form submission feedback
+            document.getElementById('upload-form').addEventListener('submit', function(e) {
+                if (!analyzeBtn.disabled) {
+                    analyzeBtn.innerHTML = `
+                        <div class="flex items-center justify-center space-x-3">
+                            <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span class="text-lg">Analyzing...</span>
+                        </div>
+                    `;
+                    analyzeBtn.disabled = true;
+                    showToast('Processing your Instagram data...', 'info');
+                }
+            });
+        </script>
+    {% else %}
+        <!-- Results Section -->
+        <div class="max-w-7xl mx-auto animate-on-scroll">
+            {% set following_users = following|keys %}
+            {% set follower_users = followers|keys %}
+            {% set notFollowingBack = [] %}
+            {% for user in following_users %}
+                {% if user not in follower_users %}
+                    {% set notFollowingBack = notFollowingBack|merge([user]) %}
+                {% endif %}
+            {% endfor %}
+            {% set notFollowedByYou = [] %}
+            {% for user in follower_users %}
+                {% if user not in following_users %}
+                    {% set notFollowedByYou = notFollowedByYou|merge([user]) %}
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Results Header -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center space-x-3 mb-6 p-4 rounded-2xl glass-effect">
+                    <div class="w-14 h-14 rounded-xl gradient-bg flex items-center justify-center">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <div class="text-left">
+                        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Analysis Complete</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Your Instagram network insights are ready</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                {% set stats = [
+                    {count: followers|length, label: 'Followers', color: 'primary', icon: '👥', trend: '+5%'},
+                    {count: following|length, label: 'Following', color: 'purple', icon: '🔍', trend: '-2%'},
+                    {count: notFollowingBack|length, label: "Don't Follow Back", color: 'red', icon: '🚫', trend: 'Action'},
+                    {count: notFollowedByYou|length, label: "You Don't Follow", color: 'green', icon: '❤️', trend: 'Potential'}
+                ] %}
+                {% for stat in stats %}
+                <div class="stat-card glass-effect rounded-2xl p-6 hover:shadow-card-hover">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="text-3xl">{{ stat.icon }}</div>
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-{{ stat.color }}-100 dark:bg-{{ stat.color }}-900/30 text-{{ stat.color }}-600 dark:text-{{ stat.color }}-300">
+                            {{ stat.trend }}
+                        </span>
+                    </div>
+                    <div class="text-4xl font-bold text-gray-900 dark:text-white mb-2">{{ stat.count|number_format }}</div>
+                    <div class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ stat.label }}</div>
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                            <div class="h-full bg-{{ stat.color }}-500 rounded-full" 
+                                 style="width: {{ (stat.count / (followers|length + following|length)) * 200 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Detailed Analysis -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Don't Follow You Back -->
+                <div class="glass-effect rounded-3xl overflow-hidden shadow-soft">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">Don't Follow You Back</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ notFollowingBack|length }} accounts</p>
+                                </div>
+                            </div>
+                            <button onclick="copyToClipboard('{{ notFollowingBack|join(",") }}')" 
+                                    class="px-4 py-2 text-sm font-medium rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
+                                Copy All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-1 max-h-[500px] overflow-y-auto user-list">
+                        {% if notFollowingBack|length > 0 %}
+                            {% for user in notFollowingBack|sort|slice(0, 50) %}
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg m-1">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-400 to-pink-500 flex items-center justify-center text-white font-bold">
+                                        {{ user|first|upper }}
+                                    </div>
+                                    <div>
+                                        <a href="https://instagram.com/{{ user }}" target="_blank" rel="noopener noreferrer" 
+                                           class="font-medium text-gray-800 dark:text-white hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
+                                            @{{ user }}
+                                        </a>
+                                        {% if following[user] %}
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            Followed on {{ following[user]|date('M d, Y') }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <button onclick="copyUsername('{{ user }}')" 
+                                            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                            title="Copy username">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </button>
+                                    <a href="https://instagram.com/{{ user }}" target="_blank" rel="noopener noreferrer"
+                                       class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                       title="Open profile">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% if notFollowingBack|length > 50 %}
+                            <div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                ... and {{ notFollowingBack|length - 50 }} more accounts
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="p-8 text-center">
+                                <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
+                                    <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Perfect Balance! 🎉</h4>
+                                <p class="text-gray-600 dark:text-gray-400">Everyone you follow follows you back</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- You Don't Follow Back -->
+                <div class="glass-effect rounded-3xl overflow-hidden shadow-soft">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">You Don't Follow Back</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ notFollowedByYou|length }} accounts</p>
+                                </div>
+                            </div>
+                            <button onclick="copyToClipboard('{{ notFollowedByYou|join(",") }}')" 
+                                    class="px-4 py-2 text-sm font-medium rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors">
+                                Copy All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-1 max-h-[500px] overflow-y-auto user-list">
+                        {% if notFollowedByYou|length > 0 %}
+                            {% for user in notFollowedByYou|sort|slice(0, 50) %}
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg m-1">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-white font-bold">
+                                        {{ user|first|upper }}
+                                    </div>
+                                    <div>
+                                        <a href="https://instagram.com/{{ user }}" target="_blank" rel="noopener noreferrer" 
+                                           class="font-medium text-gray-800 dark:text-white hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
+                                            @{{ user }}
+                                        </a>
+                                        {% if followers[user] %}
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            Following you since {{ followers[user]|date('M d, Y') }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <button onclick="copyUsername('{{ user }}')" 
+                                            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                            title="Copy username">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </button>
+                                    <a href="https://instagram.com/{{ user }}" target="_blank" rel="noopener noreferrer"
+                                       class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                       title="Open profile">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% if notFollowedByYou|length > 50 %}
+                            <div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                ... and {{ notFollowedByYou|length - 50 }} more accounts
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="p-8 text-center">
+                                <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
+                                    <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                </div>
+                                <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Reciprocal Followers! 🤝</h4>
+                                <p class="text-gray-600 dark:text-gray-400">You follow back all your followers</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Insights & Actions -->
+            <div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Insight Card -->
+                <div class="glass-effect rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-bold text-gray-800 dark:text-white">Insight</h4>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        {% set ratio = (notFollowingBack|length / following|length) * 100 %}
+                        {% if ratio > 30 %}
+                            You follow {{ ratio|round }}% more people than follow you back. Consider unfollowing inactive accounts.
+                        {% elseif ratio > 15 %}
+                            Your follow ratio is fairly balanced. Great networking!
+                        {% else %}
+                            Excellent reciprocal following ratio! Your engagement is healthy.
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <!-- Export Card -->
+                <div class="glass-effect rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-bold text-gray-800 dark:text-white">Export Data</h4>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="exportData('csv')" 
+                                class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-gray-500">📊</div>
+                                <span class="font-medium text-sm">Export as CSV</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </button>
+                        <button onclick="exportData('json')" 
+                                class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-gray-500">📄</div>
+                                <span class="font-medium text-sm">Export as JSON</span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Reset Card -->
+                <div class="glass-effect rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A49.474 49.474 0 004 9m16 0v5m-4 0H20"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-bold text-gray-800 dark:text-white">New Analysis</h4>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                        Analyze a different Instagram account or updated data files.
+                    </p>
+                    <a href="{{ path('app_home') }}" 
+                       class="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary-500 to-purple-600 text-white font-medium rounded-xl hover:shadow-lg transition-all duration-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A49.474 49.474 0 004 9m16 0v5m-4 0H20"></path>
+                        </svg>
+                        <span>Start New Analysis</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Utility functions for results page
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Copied to clipboard!', 'success');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    showToast('Failed to copy', 'error');
+                });
+            }
+            
+            function copyUsername(username) {
+                navigator.clipboard.writeText(username).then(() => {
+                    showToast(`@${username} copied!`, 'success');
+                });
+            }
+            
+            function exportData(format) {
+                const data = {
+                    followers: {{ followers|json_encode|raw }},
+                    following: {{ following|json_encode|raw }},
+                    notFollowingBack: {{ notFollowingBack|json_encode|raw }},
+                    notFollowedByYou: {{ notFollowedByYou|json_encode|raw }},
+                    generatedAt: new Date().toISOString()
+                };
+                
+                let content, mimeType, filename;
+                
+                if (format === 'csv') {
+                    const rows = [
+                        ['Type', 'Username', 'Date'],
+                        ...data.notFollowingBack.map(u => ['Not Following Back', u, '']),
+                        ...data.notFollowedByYou.map(u => ['You Don\'t Follow', u, ''])
+                    ];
+                    content = rows.map(row => row.join(',')).join('\n');
+                    mimeType = 'text/csv';
+                    filename = 'instanalyzer-data.csv';
+                } else {
+                    content = JSON.stringify(data, null, 2);
+                    mimeType = 'application/json';
+                    filename = 'instanalyzer-data.json';
+                }
+                
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast(`Data exported as ${format.toUpperCase()}`, 'success');
+            }
+            
+            // Share results
+            function shareResults() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'My Instagram Network Analysis',
+                        text: `I analyzed my Instagram network with InstAnalyzer. ${followers|length} followers, ${following|length} following.`,
+                        url: window.location.href,
+                    });
+                } else {
+                    copyToClipboard(window.location.href);
+                    showToast('Link copied to clipboard!', 'success');
+                }
+            }
+        </script>
+    {% endif %}
+{% endblock %}

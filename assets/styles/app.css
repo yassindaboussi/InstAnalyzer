@@ -1,0 +1,26 @@
+/* public/styles/app.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply text-gray-900 dark:text-white;
+    }
+}
+
+@layer utilities {
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+        @apply bg-gray-200 dark:bg-gray-700 rounded-full;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        @apply bg-gray-400 dark:bg-gray-500 rounded-full;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        @apply bg-gray-500 dark:bg-gray-400;
+    }
+}
