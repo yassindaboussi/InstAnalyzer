@@ -1,439 +1,299 @@
+{# templates/analyzer/results.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block body %}
 <div class="max-w-7xl mx-auto animate-on-scroll">
+    {# Compute users who don't follow back #}
     {% set following_users = following|keys %}
     {% set follower_users = followers|keys %}
-  
+
     {% set notFollowingBack = [] %}
     {% for user in following_users %}
         {% if user not in follower_users %}
-            {% set notFollowingBack = notFollowingBack|merge([{username: user, date: following[user]|date('Y-m-d'), timestamp: following[user] ? following[user].timestamp : 0}]) %}
+            {% set timestamp = following[user].timestamp ?? following[user] ?? 0 %}
+            {% set notFollowingBack = notFollowingBack|merge([{
+                username: user,
+                date: timestamp ? timestamp|date('Y-m-d') : null,
+                timestamp: timestamp
+            }]) %}
         {% endif %}
     {% endfor %}
-  
-    <!-- Summary Stats - Compact Design -->
+
+    {# Stats #}
+    {% set stats = [
+        {count: followers|length, label: 'Followers', color: 'emerald', icon: 'users'},
+        {count: following|length, label: 'Following', color: 'purple', icon: 'user-plus'},
+        {count: notFollowingBack|length, label: "Don't Follow Back", color: 'red', icon: 'user-x'}
+    ] %}
+
+    {# Fix: Use reduce() to get max value instead of non-existent |max filter #}
+    {% set max_count = [followers|length, following|length, notFollowingBack|length]|reduce((carry, v) => carry > v ? carry : v, 0) %}
+
+    <!-- Summary Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {% set stats = [
-            {count: followers|length, label: 'Followers', color: 'primary', icon: '👥'},
-            {count: following|length, label: 'Following', color: 'purple', icon: '🔍'},
-            {count: notFollowingBack|length, label: "Don't Follow Back", color: 'red', icon: '🚫'}
-        ] %}
-        {% set max_count = max([followers|length, following|length, notFollowingBack|length]) %}
         {% for stat in stats %}
-        <div class="stat-card glass-effect rounded-xl p-4 hover:shadow-card-hover transition-all duration-300">
+        <div class="glass-effect rounded-xl p-5 hover:shadow-card-hover transition-all stat-card">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-lg bg-{{ stat.color }}-100 dark:bg-{{ stat.color }}-900/20 flex items-center justify-center">
-                        <span class="text-lg">{{ stat.icon }}</span>
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-{{ stat.color }}-100 dark:bg-{{ stat.color }}-900/30 flex items-center justify-center">
+                        <i data-lucide="{{ stat.icon }}" class="w-7 h-7 text-{{ stat.color }}-600 dark:text-{{ stat.color }}-400"></i>
                     </div>
                     <div>
-                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ stat.count|number_format }}</div>
-                        <div class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ stat.label }}</div>
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ stat.count|number_format }}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">{{ stat.label }}</div>
                     </div>
                 </div>
-                <div class="text-right">
-                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total</div>
-                    <div class="w-16 h-1 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                        <div class="h-full bg-{{ stat.color }}-500 rounded-full"
-                            style="width: {{ max_count > 0 ? (stat.count / max_count) * 100 : 0 }}%"></div>
-                    </div>
+                <div class="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div class="h-full bg-{{ stat.color }}-500 rounded-full transition-all duration-1000"
+                         style="width: {{ max_count > 0 ? (stat.count / max_count) * 100 : 0 }}%"></div>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
-  
-    <!-- Detailed Analysis - Single Column -->
-    <div class="mb-12">
-        <!-- Don't Follow You Back -->
-        <div class="glass-effect rounded-3xl overflow-hidden shadow-soft">
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
-                            </svg>
+
+    <!-- Don't Follow You Back List -->
+    <div class="glass-effect rounded-3xl overflow-hidden shadow-soft">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                        <i data-lucide="user-x" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-white">Don't Follow You Back</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400" id="not-following-count">{{ notFollowingBack|length }} accounts</p>
+                    </div>
+                </div>
+                <button onclick="copyToClipboard('{{ notFollowingBack|map(u => u.username)|join(', ') }}')"
+                        class="px-4 py-2 text-sm font-medium rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors flex items-center gap-2">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    Copy All
+                </button>
+            </div>
+
+            <!-- Sort & Open Tabs -->
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Sort by:</span>
+                    <div class="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                        <button onclick="sortNotFollowingBack('newest', this)" data-sort="newest"
+                                class="sort-btn px-4 py-1.5 text-xs font-medium rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm">Newest</button>
+                        <button onclick="sortNotFollowingBack('oldest', this)" data-sort="oldest"
+                                class="sort-btn px-4 py-1.5 text-xs font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-800">Oldest</button>
+                        <button onclick="sortNotFollowingBack('name', this)" data-sort="name"
+                                class="sort-btn px-4 py-1.5 text-xs font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-800">Name</button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openUsersInNewTabs(5)" class="px-3 py-1.5 text-xs rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 flex items-center gap-1">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i> 5 Tabs
+                    </button>
+                    <button onclick="openUsersInNewTabs(10)" class="px-3 py-1.5 text-xs rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 flex items-center gap-1">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i> 10 Tabs
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-h-[520px] overflow-y-auto user-list" id="notFollowingBack-list">
+            {% if notFollowingBack|length > 0 %}
+                {% for user in notFollowingBack|sort((a,b) => b.timestamp <=> a.timestamp) %}
+                <div class="user-item flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-b border-gray-100 dark:border-gray-800 last:border-0"
+                     data-username="{{ user.username }}"
+                     data-timestamp="{{ user.timestamp|default(0) }}">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-red-400 to-pink-600 flex items-center justify-center text-white font-bold text-sm">
+                            {{ user.username|first|upper }}
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-800 dark:text-white">Don't Follow You Back</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ notFollowingBack|length }} accounts</p>
+                            <a href="https://instagram.com/{{ user.username }}" target="_blank" rel="noopener noreferrer"
+                               class="font-medium text-gray-800 dark:text-white hover:text-primary-500 transition-colors">
+                                @{{ user.username }}
+                            </a>
+                            {% if user.date %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Followed {{ user.date|date('M d, Y') }}
+                            </p>
+                            {% endif %}
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="copyToClipboard('{{ notFollowingBack|map(user => user.username)|join(",") }}')"
-                                class="px-4 py-2 text-sm font-medium rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
-                            Copy All
+                    <div class="flex items-center gap-2">
+                        <a href="https://instagram.com/{{ user.username }}" target="_blank" rel="noopener noreferrer"
+                           class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Open profile">
+                            <i data-lucide="external-link" class="w-4.5 h-4.5 text-gray-500"></i>
+                        </a>
+                        <button onclick="copyUsername('{{ user.username }}')"
+                                class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Copy username">
+                            <i data-lucide="copy" class="w-4.5 h-4.5 text-gray-500"></i>
+                        </button>
+                        <button onclick="removeUser('{{ user.username }}')"
+                                class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 hover:text-red-700 transition-colors" title="Remove">
+                            <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
                         </button>
                     </div>
                 </div>
-                <!-- Sorting and Action Buttons -->
-                <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Sort by:</span>
-                        <div class="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-                            <button onclick="sortNotFollowingBack('newest', this)"
-                                    class="px-3 py-1 text-xs font-medium rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm sort-btn"
-                                    data-sort="newest">
-                                Newest
-                            </button>
-                            <button onclick="sortNotFollowingBack('oldest', this)"
-                                    class="px-3 py-1 text-xs font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors sort-btn"
-                                    data-sort="oldest">
-                                Oldest
-                            </button>
-                            <button onclick="sortNotFollowingBack('name', this)"
-                                    class="px-3 py-1 text-xs font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors sort-btn"
-                                    data-sort="name">
-                                Name
-                            </button>
-                        </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-12 text-center">
+                    <div class="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="check-circle" class="w-12 h-12 text-green-600 dark:text-green-400"></i>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Open:</span>
-                        <div class="flex items-center space-x-1">
-                            <button onclick="openUsersInNewTabs(5, 'notFollowingBack')"
-                                    class="px-3 py-1 text-xs font-medium rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors flex items-center space-x-1">
-                                <span>5 Tabs</span>
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                </svg>
-                            </button>
-                            <button onclick="openUsersInNewTabs(10, 'notFollowingBack')"
-                                    class="px-3 py-1 text-xs font-medium rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors flex items-center space-x-1">
-                                <span>10 Tabs</span>
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">Perfect Balance!</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Everyone you follow follows you back</p>
                 </div>
-            </div>
-            <div class="p-1 max-h-[500px] overflow-y-auto user-list" id="notFollowingBack-list">
-                {% if notFollowingBack|length > 0 %}
-                    {% for user in notFollowingBack|sort((a, b) => b.timestamp <=> a.timestamp) %}
-                    <div class="user-item flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors rounded-lg m-1"
-                         data-username="{{ user.username }}"
-                         data-date="{{ user.date }}"
-                         data-timestamp="{{ user.timestamp }}">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-400 to-pink-500 flex items-center justify-center text-white font-bold">
-                                {{ user.username|first|upper }}
-                            </div>
-                            <div>
-                                <a href="https://instagram.com/{{ user.username }}" target="_blank" rel="noopener noreferrer"
-                                   class="font-medium text-gray-800 dark:text-white hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
-                                    @{{ user.username }}
-                                </a>
-                                {% if user.date %}
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    Followed on {{ user.date|date('M d, Y') }}
-                                </p>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            {# 1. Open Profile (External Link) #}
-                            <a href="https://instagram.com/{{ user.username }}" target="_blank" rel="noopener noreferrer"
-                            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                            title="Open profile">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                </svg>
-                            </a>
-                            {# 2. Copy Username #}
-                            <button onclick="copyUsername('{{ user.username }}')"
-                                    class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                                    title="Copy username">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                </svg>
-                            </button>
-                            {# 3. Remove from List (Trash) #}
-                            <button onclick="removeUser('{{ user.username }}', 'notFollowingBack')"
-                                    class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors delete-btn"
-                                    title="Remove from list">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="p-8 text-center">
-                        <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                        <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Perfect Balance! 🎉</h4>
-                        <p class="text-gray-600 dark:text-gray-400">Everyone you follow follows you back</p>
-                    </div>
-                {% endif %}
-            </div>
+            {% endif %}
         </div>
     </div>
-  
-    <!-- Insights & Actions -->
+
+    <!-- Bottom Cards -->
     <div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Insight Card -->
         <div class="glass-effect rounded-2xl p-6">
-            <div class="flex items-center space-x-3 mb-4">
+            <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
+                    <i data-lucide="lightbulb" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
                 </div>
                 <h4 class="font-bold text-gray-800 dark:text-white">Insight</h4>
             </div>
-            <p class="text-gray-600 dark:text-gray-400 text-sm">
-                {% set ratio = (notFollowingBack|length / following|length) * 100 %}
+            {% set ratio = following|length > 0 ? (notFollowingBack|length / following|length) * 100 : 0 %}
+            <p class="text-sm text-gray-600 dark:text-gray-400">
                 {% if ratio > 30 %}
-                    You follow {{ ratio|round }}% more people than follow you back. Consider unfollowing inactive accounts.
+                    High unfollow rate ({{ ratio|round }}%). Time to clean up!
                 {% elseif ratio > 15 %}
-                    Your follow ratio is fairly balanced. Great networking!
+                    Balanced network ({{ ratio|round }}%). Keep it up!
                 {% else %}
-                    Excellent reciprocal following ratio! Your engagement is healthy.
+                    Excellent ratio ({{ ratio|round }}%) — healthy engagement!
                 {% endif %}
             </p>
         </div>
-      
-        <!-- Export Card -->
+
         <div class="glass-effect rounded-2xl p-6">
-            <div class="flex items-center space-x-3 mb-4">
+            <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
+                    <i data-lucide="download" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
                 </div>
-                <h4 class="font-bold text-gray-800 dark:text-white">Export Data</h4>
+                <h4 class="font-bold text-gray-800 dark:text-white">Export Results</h4>
             </div>
             <div class="space-y-3">
-                <button onclick="exportData('csv')"
-                        class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border border-gray-200 dark:border-gray-700">
-                    <div class="flex items-center space-x-3">
-                        <div class="text-gray-500">📊</div>
-                        <span class="font-medium text-sm">Export as CSV</span>
+                <button onclick="exportData('csv')" class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="file-spreadsheet" class="w-5 h-5 text-gray-500"></i>
+                        <span class="text-sm font-medium">Export as CSV</span>
                     </div>
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                    </svg>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-gray-400"></i>
                 </button>
-                <button onclick="exportData('json')"
-                        class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border border-gray-200 dark:border-gray-700">
-                    <div class="flex items-center space-x-3">
-                        <div class="text-gray-500">📄</div>
-                        <span class="font-medium text-sm">Export as JSON</span>
+                <button onclick="exportData('json')" class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="file-code" class="w-5 h-5 text-gray-500"></i>
+                        <span class="text-sm font-medium">Export as JSON</span>
                     </div>
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                    </svg>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-gray-400"></i>
                 </button>
             </div>
         </div>
-      
-        <!-- Reset Card -->
+
         <div class="glass-effect rounded-2xl p-6">
-            <div class="flex items-center space-x-3 mb-4">
+            <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A49.474 49.474 0 004 9m16 0v5m-4 0H20"></path>
-                    </svg>
+                    <i data-lucide="refresh-cw" class="w-6 h-6 text-orange-600 dark:text-orange-400"></i>
                 </div>
                 <h4 class="font-bold text-gray-800 dark:text-white">New Analysis</h4>
             </div>
-            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                Analyze a different Instagram account or updated data files.
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Ready for another account?
             </p>
-            <a href="{{ path('app_home') }}"
-               class="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-primary-500 to-purple-600 text-white font-medium rounded-xl hover:shadow-lg transition-all duration-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A49.474 49.474 0 004 9m16 0v5m-4 0H20"></path>
-                </svg>
-                <span>Start New Analysis</span>
+            <a href="{{ path('app_home') }}" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-purple-600 text-white font-medium rounded-xl hover:shadow-lg transition-all">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                Start New Analysis
             </a>
         </div>
     </div>
 </div>
 
 <script>
-    // Utility functions for results page
     function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            showToast('Copied to clipboard!', 'success');
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-            showToast('Failed to copy', 'error');
-        });
+        navigator.clipboard.writeText(text).then(() => showToast('Copied all usernames!', 'success'));
     }
-  
+
     function copyUsername(username) {
-        navigator.clipboard.writeText(username).then(() => {
-            showToast(`@${username} copied!`, 'success');
-        });
+        navigator.clipboard.writeText(username).then(() => showToast(`@${username} copied!`, 'success'));
     }
-  
+
     function exportData(format) {
-        // Create the data structure for export
-        const notFollowingBackUsernames = Array.from(document.querySelectorAll('#notFollowingBack-list .user-item'))
-            .map(item => item.dataset.username);
-       
-        const data = {
-            followers: {{ followers|json_encode|raw }},
-            following: {{ following|json_encode|raw }},
-            notFollowingBack: notFollowingBackUsernames,
-            generatedAt: new Date().toISOString()
-        };
-      
-        let content, mimeType, filename;
-      
+        const usernames = Array.from(document.querySelectorAll('#notFollowingBack-list .user-item'))
+            .map(el => el.dataset.username);
+
+        let content, type, ext;
         if (format === 'csv') {
-            const rows = [
-                ['Type', 'Username', 'Date'],
-                ...notFollowingBackUsernames.map(u => ['Not Following Back', u, ''])
-            ];
-            content = rows.map(row => row.join(',')).join('\n');
-            mimeType = 'text/csv';
-            filename = 'instanalyzer-data.csv';
+            content = "Username\n" + usernames.join("\n");
+            type = "text/csv";
+            ext = "csv";
         } else {
-            content = JSON.stringify(data, null, 2);
-            mimeType = 'application/json';
-            filename = 'instanalyzer-data.json';
+            content = JSON.stringify({ notFollowingBack: usernames, exportedAt: new Date().toISOString() }, null, 2);
+            type = "application/json";
+            ext = "json";
         }
-      
-        const blob = new Blob([content], { type: mimeType });
+
+        const blob = new Blob([content], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
+        a.download = `instanalyzer-${format}-${new Date().toISOString().slice(0,10)}.${ext}`;
         a.click();
-        document.body.removeChild(a);
         URL.revokeObjectURL(url);
-      
-        showToast(`Data exported as ${format.toUpperCase()}`, 'success');
+        showToast(`Exported as ${format.toUpperCase()}`, 'success');
     }
-  
-    // Share results
-    function shareResults() {
-        if (navigator.share) {
-            navigator.share({
-                title: 'My Instagram Network Analysis',
-                text: `I analyzed my Instagram network with InstAnalyzer. ${followers|length} followers, ${following|length} following.`,
-                url: window.location.href,
-            });
-        } else {
-            copyToClipboard(window.location.href);
-            showToast('Link copied to clipboard!', 'success');
-        }
-    }
-  
-    // New functionality for sorting and managing users
-    function sortNotFollowingBack(sortType, buttonElement) {
-        const listElement = document.getElementById('notFollowingBack-list');
-        const userItems = Array.from(listElement.querySelectorAll('.user-item'));
-        const container = listElement.closest('.glass-effect');
-       
-        // Update active sort button
-        container.querySelectorAll('.sort-btn').forEach(btn => {
-            btn.classList.remove('bg-white', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-white', 'shadow-sm');
-            btn.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:text-gray-800', 'dark:hover:text-white');
+
+    function sortNotFollowingBack(type, btn) {
+        const list = document.getElementById('notFollowingBack-list');
+        const items = Array.from(list.querySelectorAll('.user-item'));
+
+        document.querySelectorAll('.sort-btn').forEach(b => {
+            b.classList.remove('bg-white', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-white', 'shadow-sm');
+            b.classList.add('text-gray-600', 'dark:text-gray-400');
         });
-       
-        // Activate clicked button
-        if (buttonElement) {
-            buttonElement.classList.add('bg-white', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-white', 'shadow-sm');
-            buttonElement.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:text-gray-800', 'dark:hover:text-white');
-        } else {
-            // Fallback: activate the button with matching data-sort attribute
-            const targetBtn = container.querySelector(`.sort-btn[data-sort="${sortType}"]`);
-            if (targetBtn) {
-                targetBtn.classList.add('bg-white', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-white', 'shadow-sm');
-                targetBtn.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:text-gray-800', 'dark:hover:text-white');
-            }
-        }
-       
-        userItems.sort((a, b) => {
-            const usernameA = a.dataset.username.toLowerCase();
-            const usernameB = b.dataset.username.toLowerCase();
-            const timestampA = parseInt(a.dataset.timestamp) || 0;
-            const timestampB = parseInt(b.dataset.timestamp) || 0;
-           
-            switch(sortType) {
-                case 'newest':
-                    return timestampB - timestampA;
-                case 'oldest':
-                    return timestampA - timestampB;
-                case 'name':
-                    return usernameA.localeCompare(usernameB);
-                default:
-                    return 0;
-            }
+        btn.classList.add('bg-white', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-white', 'shadow-sm');
+
+        items.sort((a, b) => {
+            if (type === 'name') return a.dataset.username.localeCompare(b.dataset.username);
+            const ta = parseInt(a.dataset.timestamp) || 0;
+            const tb = parseInt(b.dataset.timestamp) || 0;
+            return type === 'newest' ? tb - ta : ta - tb;
         });
-       
-        // Clear and re-add sorted items
-        userItems.forEach(item => listElement.appendChild(item));
-       
-        // Show feedback
-        showToast(`Sorted by ${sortType}`, 'success');
+
+        items.forEach(item => list.appendChild(item));
+        showToast(`Sorted by ${type}`, 'success');
     }
-  
-    function openUsersInNewTabs(count, listType) {
-        const listElement = document.getElementById(`${listType}-list`);
-        const userItems = listElement.querySelectorAll('.user-item');
-      
-        // Get the first X users
-        const users = Array.from(userItems)
+
+    function openUsersInNewTabs(count) {
+        const usernames = Array.from(document.querySelectorAll('#notFollowingBack-list .user-item'))
             .slice(0, count)
-            .map(item => item.dataset.username);
-      
-        // Open each user in a new tab
-        users.forEach(username => {
-            window.open(`https://instagram.com/${username}`, '_blank');
-        });
-      
-        showToast(`Opened ${users.length} profiles in new tabs`, 'success');
+            .map(el => el.dataset.username);
+        usernames.forEach(u => window.open(`https://instagram.com/${u}`, '_blank'));
+        showToast(`Opened ${usernames.length} profiles`, 'success');
     }
-  
-    function removeUser(username, listType) {
-        const listElement = document.getElementById(`${listType}-list`);
-        const userItem = listElement.querySelector(`[data-username="${username}"]`);
-      
-        if (userItem) {
-            // Add fade-out animation
-            userItem.style.opacity = '0';
-            userItem.style.transform = 'translateX(-20px)';
-          
+
+    function removeUser(username) {
+        const item = document.querySelector(`[data-username="${username}"]`);
+        if (item) {
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-20px)';
             setTimeout(() => {
-                userItem.remove();
-                showToast(`@${username} removed from list`, 'success');
-              
-                // Update the count in the header
-                const countElement = listElement.closest('.glass-effect').querySelector('p.text-sm');
-                const currentCount = parseInt(countElement.textContent.match(/\d+/)[0]);
-                countElement.textContent = countElement.textContent.replace(/\d+/, currentCount - 1);
+                item.remove();
+                const countEl = document.getElementById('not-following-count');
+                if (countEl) {
+                    const current = parseInt(countEl.textContent.match(/\d+/)[0]) - 1;
+                    countEl.textContent = countEl.textContent.replace(/\d+/, current);
+                }
+                showToast(`@${username} removed`, 'success');
             }, 300);
         }
     }
-  
-    // Initialize with default sorting
-    function initializeDefaultSorting() {
-        // Wait a bit for DOM to be fully ready
-        setTimeout(() => {
-            const sortContainer = document.querySelector('#notFollowingBack-list');
-            if (sortContainer) {
-                const defaultSortBtn = sortContainer.closest('.glass-effect').querySelector('.sort-btn[data-sort="newest"]');
-                if (defaultSortBtn) {
-                    defaultSortBtn.click();
-                }
-            }
-        }, 100);
-    }
-  
-    // Call initialization when DOM is loaded
-    document.addEventListener('DOMContentLoaded', initializeDefaultSorting);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const newestBtn = document.querySelector('.sort-btn[data-sort="newest"]');
+        if (newestBtn) newestBtn.click();
+        lucide.createIcons();
+    });
 </script>
 {% endblock %}
