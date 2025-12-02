@@ -314,21 +314,6 @@
                 {% endif %}
             {% endfor %}
            
-            <!-- Results Header -->
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center space-x-3 mb-6 p-4 rounded-2xl glass-effect">
-                    <div class="w-14 h-14 rounded-xl gradient-bg flex items-center justify-center">
-                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                    </div>
-                    <div class="text-left">
-                        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Analysis Complete</h1>
-                        <p class="text-gray-600 dark:text-gray-400">Your Instagram network insights are ready</p>
-                    </div>
-                </div>
-            </div>
-           
             <!-- Summary Stats - Compact Design -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 {% set stats = [
@@ -410,13 +395,19 @@
                             <div class="flex items-center space-x-2">
                                 <span class="text-sm text-gray-600 dark:text-gray-400">Open:</span>
                                 <div class="flex items-center space-x-1">
-                                    <button onclick="openUsersInNewTabs(5, 'notFollowingBack')" 
-                                            class="px-3 py-1 text-xs font-medium rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
-                                        5 Tabs
+                                    <button onclick="openUsersInNewTabs(5, 'notFollowingBack')"
+                                            class="px-3 py-1 text-xs font-medium rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors flex items-center space-x-1">
+                                        <span>5 Tabs</span>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
                                     </button>
-                                    <button onclick="openUsersInNewTabs(10, 'notFollowingBack')" 
-                                            class="px-3 py-1 text-xs font-medium rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
-                                        10 Tabs
+                                    <button onclick="openUsersInNewTabs(10, 'notFollowingBack')"
+                                            class="px-3 py-1 text-xs font-medium rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors flex items-center space-x-1">
+                                        <span>10 Tabs</span>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
                                     </button>
                                 </div>
                             </div>
