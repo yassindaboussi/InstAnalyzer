@@ -1,129 +1,169 @@
-{# templates/analyzer/index.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div class="max-w-4xl mx-auto animate-on-scroll">
-    <!-- Hero -->
-    <div class="text-center mb-12 lg:mb-16">
-        <div class="inline-block mb-6 p-3 rounded-2xl glass-effect">
-            <div class="w-16 h-16 rounded-xl gradient-bg flex items-center justify-center mx-auto mb-4 animate-float">
-                <i data-lucide="sparkles" class="w-10 h-10 text-white"></i>
-            </div>
-        </div>
-        <h1 class="text-4xl lg:text-5xl font-bold mb-6">
-            <span class="gradient-text">Analyze Your Instagram</span><br>
-            <span class="text-gray-700 dark:text-gray-300">Network in Seconds</span>
+<div class="max-w-4xl mx-auto">
+    <!-- Compact Hero -->
+    <div class="text-center mb-10">
+        <h1 class="text-3xl font-bold mb-3">
+            <span class="gradient-text">Instagram Network Insights</span>
         </h1>
-        <p class="text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
-            Upload your Instagram data files to discover detailed insights about your followers and following relationships.
+        <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
+            Discover who doesn't follow you back
         </p>
-        <div class="flex flex-wrap justify-center gap-4 mb-10">
-            <div class="flex items-center space-x-2 px-4 py-2 rounded-full bg-green-50 dark:bg-green-900/20">
-                <i data-lucide="shield" class="w-4 h-4 text-green-500"></i>
-                <span class="text-sm font-medium text-green-700 dark:text-green-300">100% Private</span>
-            </div>
-            <div class="flex items-center space-x-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/20">
-                <i data-lucide="lock" class="w-4 h-4 text-blue-500"></i>
-                <span class="text-sm font-medium text-blue-700 dark:text-blue-300">No Login Required</span>
-            </div>
-            <div class="flex items-center space-x-2 px-4 py-2 rounded-full bg-purple-50 dark:bg-purple-900/20">
-                <i data-lucide="gift" class="w-4 h-4 text-purple-500"></i>
-                <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Free Forever</span>
-            </div>
-        </div>
     </div>
 
-    <!-- How It Works -->
-    <div class="mb-12">
-        <h2 class="text-2xl font-bold text-center mb-8 text-gray-800 dark:text-white">
-            <span class="highlight relative">How It Works</span>
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {% set steps = [
-                {icon: 'download-cloud', title: 'Request Data', desc: 'Request your data from Instagram settings'},
-                {icon: 'folder-open', title: 'Upload Files', desc: 'Upload followers and following JSON files'},
-                {icon: 'trending-up', title: 'Get Insights', desc: 'Receive detailed analytics instantly'}
-            ] %}
-            {% for step in steps %}
-            <div class="glass-effect rounded-2xl p-6 text-center transition-all hover:shadow-card-hover">
-                <i data-lucide="{{ step.icon }}" class="w-12 h-12 mb-4 text-primary-500"></i>
-                <h3 class="font-bold text-lg mb-2 text-gray-800 dark:text-white">{{ step.title }}</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">{{ step.desc }}</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Upload Form -->
-    <div class="glass-effect rounded-3xl p-6 lg:p-8 shadow-lg">
-        <form method="post" action="{{ path('app_results') }}" enctype="multipart/form-data" class="space-y-8" id="upload-form">
-            <!-- Followers -->
-            <div>
-                <label class="block text-lg font-semibold mb-2">Followers Files</label>
-                <p class="text-gray-600 dark:text-gray-400 mb-4">Upload <code>followers_1.json</code> and optionally <code>followers_2.json</code></p>
-                <div class="upload-zone relative rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
-                    <input id="followers-input" type="file" name="followers[]" multiple required accept=".json" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                    <div class="text-center">
-                        <div class="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mx-auto mb-4">
-                            <i data-lucide="users" class="w-10 h-10 text-primary-500"></i>
-                        </div>
-                        <p class="font-medium mb-2"><span class="text-primary-500">Click to upload</span> or drag and drop</p>
-                        <p class="text-sm text-gray-500">JSON files only (max 2)</p>
-                    </div>
-                </div>
-                <div id="followers-preview" class="mt-4 space-y-2 hidden"></div>
-            </div>
-
-            <!-- Following -->
-            <div>
-                <label class="block text-lg font-semibold mb-2">Following File</label>
-                <p class="text-gray-600 dark:text-gray-400 mb-4">Upload <code>following.json</code></p>
-                <div class="upload-zone relative rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
-                    <input id="following-input" type="file" name="following" required accept=".json" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                    <div class="text-center">
-                        <div class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto mb-4">
-                            <i data-lucide="user-plus" class="w-10 h-10 text-purple-500"></i>
-                        </div>
-                        <p class="font-medium mb-2"><span class="text-purple-500">Click to upload</span> or drag and drop</p>
-                        <p class="text-sm text-gray-500">Single JSON file</p>
-                    </div>
-                </div>
-                <div id="following-preview" class="mt-4 space-y-2 hidden"></div>
-            </div>
-
-            <!-- Submit -->
-            <div class="pt-4">
-                <button type="submit" id="analyze-btn" class="w-full py-4 px-6 bg-gradient-to-r from-primary-500 to-purple-600 text-white font-semibold rounded-2xl hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3">
-                    <i data-lucide="zap" class="w-5 h-5"></i>
-                    <span class="text-lg">Analyze Network</span>
-                </button>
-                <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-3">
-                    Your data is processed locally and never stored on our servers.
+    <!-- Compact Upload Section -->
+    <div class="grid lg:grid-cols-2 gap-6 mb-10">
+        <!-- Left: Upload Form -->
+        <div class="glass-effect rounded-2xl p-6 shadow-card">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold mb-2 flex items-center">
+                    <i data-lucide="upload" class="w-5 h-5 text-primary-500 mr-2"></i>
+                    Upload Your Data
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Upload the JSON files from your Instagram data download
                 </p>
             </div>
-        </form>
+
+            <form method="post" action="{{ path('app_results') }}" enctype="multipart/form-data" class="space-y-6" id="upload-form">
+                <!-- Followers -->
+                <div>
+                    <label class="block font-medium mb-2 text-sm">
+                        <span class="flex items-center">
+                            <i data-lucide="users" class="w-4 h-4 text-primary-500 mr-2"></i>
+                            Followers Files
+                        </span>
+                    </label>
+                    <div class="upload-zone relative rounded-xl p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary-400 transition-colors bg-white/50 dark:bg-gray-800/50 cursor-pointer">
+                        <input id="followers-input" type="file" name="followers[]" multiple required accept=".json" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="flex items-center justify-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                                <i data-lucide="file" class="w-5 h-5 text-primary-500"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium text-sm">Click to upload</p>
+                                <p class="text-xs text-gray-500">followers_1.json, followers_2.json</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="followers-preview" class="mt-3 space-y-2 hidden"></div>
+                </div>
+
+                <!-- Following -->
+                <div>
+                    <label class="block font-medium mb-2 text-sm">
+                        <span class="flex items-center">
+                            <i data-lucide="user-plus" class="w-4 h-4 text-purple-500 mr-2"></i>
+                            Following File
+                        </span>
+                    </label>
+                    <div class="upload-zone relative rounded-xl p-5 border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-purple-400 transition-colors bg-white/50 dark:bg-gray-800/50 cursor-pointer">
+                        <input id="following-input" type="file" name="following" required accept=".json" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="flex items-center justify-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                <i data-lucide="file-text" class="w-5 h-5 text-purple-500"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium text-sm">Click to upload</p>
+                                <p class="text-xs text-gray-500">following.json</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="following-preview" class="mt-3 space-y-2 hidden"></div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-2">
+                    <button type="submit" id="analyze-btn" class="w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+                        <i data-lucide="zap" class="w-4 h-4"></i>
+                        <span>Analyze My Network</span>
+                    </button>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                        <i data-lucide="lock" class="w-3 h-3 inline mr-1"></i>
+                        Your data never leaves your browser
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right: How It Works -->
+        <div class="glass-effect rounded-2xl p-6 shadow-card">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold mb-2 flex items-center">
+                    <i data-lucide="info" class="w-5 h-5 text-accent-500 mr-2"></i>
+                    How It Works
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Get insights in 3 simple steps
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                {% set steps = [
+                    {icon: 'download', title: 'Download Your Data', desc: 'Request your data from Instagram Settings > Privacy > Download Data'},
+                    {icon: 'upload-cloud', title: 'Upload JSON Files', desc: 'Select the followers and following JSON files'},
+                    {icon: 'chart-bar', title: 'Get Insights', desc: 'See who doesn\'t follow you back instantly'}
+                ] %}
+                {% for step in steps %}
+                <div class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                        <span class="text-sm font-bold text-primary-500">{{ loop.index }}</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-sm mb-1">{{ step.title }}</h3>
+                        <p class="text-xs text-gray-600 dark:text-gray-400">{{ step.desc }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="text-center p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                        <i data-lucide="shield" class="w-5 h-5 text-blue-500 mx-auto mb-1"></i>
+                        <p class="text-xs font-medium">100% Private</p>
+                    </div>
+                    <div class="text-center p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
+                        <i data-lucide="clock" class="w-5 h-5 text-green-500 mx-auto mb-1"></i>
+                        <p class="text-xs font-medium">Instant Results</p>
+                    </div>
+                    <div class="text-center p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                        <i data-lucide="zap" class="w-5 h-5 text-purple-500 mx-auto mb-1"></i>
+                        <p class="text-xs font-medium">No Sign Up</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- FAQ -->
-    <div class="mt-16 glass-effect rounded-3xl p-8">
-        <h2 class="text-2xl font-bold text-center mb-8"><span class="highlight relative">FAQ</span></h2>
-        <div class="space-y-4 max-w-2xl mx-auto">
+    <!-- Compact FAQ -->
+    <div class="glass-effect rounded-2xl p-6">
+        <h2 class="text-xl font-bold mb-4 flex items-center">
+            <i data-lucide="help-circle" class="w-5 h-5 text-primary-500 mr-2"></i>
+            Frequently Asked Questions
+        </h2>
+        <div class="space-y-3">
             {% set faqs = [
-                {q: 'How do I get my Instagram data?', a: 'Go to Instagram Settings → Security → Download Data.'},
-                {q: 'Is this safe?', a: 'Yes! Everything runs in your browser. We never see your data.'},
-                {q: 'What files do I need?', a: 'followers_1.json, (followers_2.json), and following.json'}
+                {q: 'Where do I find these files?', a: 'After requesting Instagram data, extract the ZIP and look in the "connections" folder.'},
+                {q: 'Is this safe?', a: 'Yes! All processing happens locally in your browser. We never see your data.'},
+                {q: 'What files do I need?', a: 'You need followers_1.json (and optionally followers_2.json) plus following.json'}
             ] %}
             {% for faq in faqs %}
-            <div class="rounded-xl p-5 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <div class="font-semibold mb-2 flex items-center">
-                    <i data-lucide="help-circle" class="w-5 h-5 text-primary-500 mr-3"></i>
-                    {{ faq.q }}
+            <details class="group">
+                <summary class="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer list-none">
+                    <span class="font-medium text-sm">{{ faq.q }}</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <div class="px-3 pb-3 mt-1">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ faq.a }}</p>
                 </div>
-                <p class="text-gray-600 dark:text-gray-400 text-sm pl-8">{{ faq.a }}</p>
-            </div>
+            </details>
             {% endfor %}
         </div>
     </div>
+
 </div>
 
 <script>
@@ -133,60 +173,85 @@
     const followersPreview = document.getElementById('followers-preview');
     const followingPreview = document.getElementById('following-preview');
 
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => {
-        document.querySelectorAll('.upload-zone').forEach(zone => {
-            zone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); });
-        });
-    });
-    ['dragenter', 'dragover'].forEach(e => {
-        document.querySelectorAll('.upload-zone').forEach(zone => {
-            zone.addEventListener(e, () => zone.classList.add('dragover'));
-        });
-    });
-    ['dragleave', 'drop'].forEach(e => {
-        document.querySelectorAll('.upload-zone').forEach(zone => {
-            zone.addEventListener(e, () => zone.classList.remove('dragover'));
-        });
-    });
-
+    // Preview update function
     function updatePreview(files, type) {
         const preview = type === 'followers' ? followersPreview : followingPreview;
+        const filesArray = Array.from(files);
+        
         preview.innerHTML = '';
+        if (filesArray.length === 0) {
+            preview.classList.add('hidden');
+            validateForm();
+            return;
+        }
+        
         preview.classList.remove('hidden');
-        Array.from(files).forEach(file => {
+        
+        filesArray.forEach((file, index) => {
             const div = document.createElement('div');
-            div.className = 'flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20';
+            div.className = 'flex items-center justify-between p-2 rounded-lg bg-green-50 dark:bg-green-900/20';
             div.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <i data-lucide="check-circle" class="w-8 h-8 text-green-600 dark:text-green-400"></i>
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="file-check" class="w-4 h-4 text-green-600"></i>
                     <div>
-                        <p class="font-medium">${file.name}</p>
-                        <p class="text-xs text-gray-500">${(file.size/1024).toFixed(1)} KB</p>
+                        <p class="text-xs font-medium truncate max-w-[180px]">${file.name}</p>
+                        <p class="text-xs text-gray-500">${(file.size/1024).toFixed(0)} KB</p>
                     </div>
                 </div>
-                <button type="button" onclick="this.parentElement.parentElement.remove(); validateForm();" class="text-gray-400 hover:text-red-600">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button type="button" class="text-gray-400 hover:text-red-500" onclick="removeFile('${type}', ${index})">
+                    <i data-lucide="x" class="w-3 h-3"></i>
                 </button>
             `;
             preview.appendChild(div);
         });
+        
         lucide.createIcons();
         validateForm();
-        showToast(`${files.length} ${type} file(s) ready`, 'success');
     }
 
+    // Remove a specific file from input
+    window.removeFile = function(type, index) {
+        const input = type === 'followers' ? followersInput : followingInput;
+        const dt = new DataTransfer();
+        const files = Array.from(input.files).filter((_, i) => i !== index);
+        
+        files.forEach(file => dt.items.add(file));
+        input.files = dt.files;
+        
+        updatePreview(input.files, type);
+    };
+
+    // Input change handlers
     followersInput.addEventListener('change', e => updatePreview(e.target.files, 'followers'));
     followingInput.addEventListener('change', e => updatePreview(e.target.files, 'following'));
 
+    // Form validation
     function validateForm() {
-        analyzeBtn.disabled = !followersInput.files.length || !followingInput.files.length;
+        analyzeBtn.disabled = followersInput.files.length === 0 || followingInput.files.length === 0;
     }
 
-    document.getElementById('upload-form').addEventListener('submit', function() {
+    // Submit loading state
+    document.getElementById('upload-form').addEventListener('submit', function(e) {
         if (!analyzeBtn.disabled) {
-            analyzeBtn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div><span class="ml-3">Analyzing...</span>';
             analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = `
+                <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span class="ml-2">Analyzing...</span>
+            `;
         }
     });
+
+    // Initial validation
+    validateForm();
 </script>
+
+<style>
+    /* Only kept essential styles – no drag-related rules */
+    details[open] summary {
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
+    details summary::-webkit-details-marker {
+        display: none;
+    }
+</style>
 {% endblock %}
