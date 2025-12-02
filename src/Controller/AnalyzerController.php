@@ -11,7 +11,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class AnalyzerController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(Request $request): Response
+    public function index(): Response
+    {
+        return $this->render('analyzer/index.html.twig');
+    }
+
+    #[Route('/analyze', name: 'app_results')]
+    public function analyze(Request $request): Response
     {
         $followers = [];
         $following = [];
@@ -53,10 +59,14 @@ class AnalyzerController extends AbstractController
             }
         }
 
-        return $this->render('analyzer/index.html.twig', [
+        // If no data was submitted, redirect to home
+        if (empty($followers) && empty($following)) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('analyzer/results.html.twig', [
             'followers' => $followers,
             'following' => $following,
-            'hasData' => !empty($followers) || !empty($following),
         ]);
     }
 }
