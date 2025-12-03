@@ -1,4 +1,3 @@
-# 🔍 InstAnalyzer  
 ![InstAnalyzer Banner](https://github.com/user-attachments/assets/3b1f7164-09f9-4fbf-9a56-022d06ba58d0)
 
 > **✨ Find out who doesn't follow you back — instantly, privately, and beautifully.**
@@ -6,6 +5,7 @@
 **InstAnalyzer** is a modern, privacy-first web tool that helps you analyze your Instagram follow relationships by uploading your official Instagram data download.  
 No login, no data collection — everything happens in your browser! 🛡️
 
+[![License: Proprietary / All Rights Reserved](https://img.shields.io/badge/License-Proprietary%20%2F%20All%20Rights%20Reserved-red.svg)](LICENSE)
 [![Symfony](https://img.shields.io/badge/built%20with-Symfony-000000.svg?style=flat&logo=symfony)](https://symfony.com)
 [![Tailwind CSS](https://img.shields.io/badge/styled%20with-Tailwind_CSS-38B2AC.svg?style=flat&logo=tailwind-css)](https://tailwindcss.com)
 

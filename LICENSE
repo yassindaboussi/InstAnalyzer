@@ -1,0 +1,31 @@
+# InstAnalyzer – Custom Restrictive License
+Copyright (c) 2025 Yassin Daboussi. All rights reserved.
+
+## Permitted
+You are allowed to:
+- View and download the source code
+- Run the software on your own computer or server for personal, non-commercial use
+- Test and evaluate the software privately
+- Fork the repository for personal experimentation only (private forks only)
+
+## Strictly Forbidden Without Explicit Written Permission
+You are NOT allowed to:
+- Redistribute, re-publish, or sublicense this software (including on GitHub, GitLab, etc.) 
+- Sell, rent, lease, or otherwise commercialize this software or any derivative work
+- Offer this software as a service (SaaS) or host it publicly for others
+- Create and distribute modified versions or derivative works (including themes, plugins, forks, etc.)
+- Remove or alter this license or the copyright notice
+- Use any part of the code in another project (even if open-source)
+
+## No License Granted for Open-Source or Commercial Use
+This is **not** released under MIT, GPL, Apache, or any other open-source license.  
+There is **no implied license** to use this code in any way beyond the very limited personal use described above.
+
+If you want to use InstAnalyzer in a company, product, SaaS, public website, or any commercial/non-personal context, you **must** obtain explicit written permission from the author.
+
+Contact: yassin.daboussi@esprit.tn
+
+---
+
+This software is provided “as is”, without warranty of any kind.
+The author is not liable for any damages arising from its use.
